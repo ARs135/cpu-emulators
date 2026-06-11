@@ -26,6 +26,6 @@ Note: If you're me (which you aren't unless if I'm reading it then hi to myself)
 1. Fork the repository
 2. Clone your fork to your device (`git clone [link]`, obviously [link] is to be replaced with your fork's link)
 3. Switch to the contributions branch (`git switch contributions`)
-4. Write an .asm file in this folder and assemble it with the assembler script in [cpp/]()
+4. Write an .asm file in this folder and assemble it with the assembler script in [cpp/](https://github.com/ARs135/cpu-emulators/tree/main/SOC-8_Emulator/cpp)
 5. Push your fork back to GitHub (assuming you do know how to use Git)
 6. Go back to my repository (not your fork, this one) and create a new Pull Request
