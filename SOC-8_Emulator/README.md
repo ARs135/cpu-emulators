@@ -18,4 +18,47 @@ This is one of my own CPUs that I've designed by myself
 - Flags: Zero and Carry Flags (also Not Zero and Not Carry)
 
 ## ISA
-placeholder (I have no idea how do I style the ISA here)
+
+| Mnemonic | Description | Opcode | Instruction Format |
+|----------|-------------|--------|------------------|
+| NOP | No Operation | 0000 | No Operands |
+| HLT | Halt | 0001 | No Operands |
+| ADD | Add | 0010 | RRR |
+| SUB | Subtract | 0011 | RRR |
+| NAND | Bitwise NAND | 0100 | RRR |
+| OR | Bitwise OR | 0101 | RRR |
+| XOR | Bitwise XOR | 0110 | RRR |
+| RSH | Right Shift | 0111 | RR |
+| LDI | Load Immediate | 1000 | RI |
+| ADI | Add Immediate | 1001 | RI |
+| JMP | Jump | 1010 | Addr10 |
+| BRH | Branch | 1011 | CAddr10 |
+| CALL | Call | 1100 | Addr10 |
+| RET | Return | 1101 | No Operands |
+| LOD | Load | 1110 | RdAddr |
+| STR | Store | 1111 | RsAddr |
+
+### Instruction Formats
+
+O - Nothing/Unused \
+D - Destination Register \
+X - Source 1 Register \
+Y - Source 2 Register \
+I - Immediate \
+A - RAM Address \
+C - Cond \
+R - IROM Address
+
+| Format | Bit Layout |
+|--------|------------|
+| No Operands | OOOO OOOO OOOO |
+| RRR | DDDX XXYY YOOO |
+| RR | DDDX XXOO OOOO |
+| RI | DDDI IIII IIIO |
+| Addr10 | OORR RRRR RRRR |
+| CAddr10 | CCRR RRRR RRRR |
+| RdAddr | DDDA AAAA AAAO |
+| RsAddr | XXXA AAAA AAAO |
+
+---
+
