@@ -14,3 +14,7 @@ Yes I know I used .hex even tho this is called the BINary folder, who cares? Don
 ## Program list
 
 - **ABSOLUTELY NOTHING** (reminder to add something to here)
+
+## MORE PROGRAMS!!!
+
+If you want to code more programs and it to appear in the repository, then go to the src ([src/](https://github.com/ARs135/cpu-emulators/tree/main/SOC-8_Emulator/programs/src)) folder to learn more
