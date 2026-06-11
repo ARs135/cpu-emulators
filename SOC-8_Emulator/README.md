@@ -62,3 +62,7 @@ R - IROM Address
 
 ---
 
+Oh welp, I didn't put a joke in this README in a bit. Time to end it with a joke \
+*ahem* \
+What did the computer do with the snack? \
+It took *byte* out of it.
