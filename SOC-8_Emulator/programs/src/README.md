@@ -30,4 +30,5 @@ Note: If you're me (which you aren't unless if I'm reading it then hi to myself)
 5. Push your fork back to GitHub (assuming you do know how to use Git)
 6. Go back to my repository (not your fork, this one) and create a new Pull Request
 
-Why did I even wrote this I don't even expect anyone else other than me to code ._.
+Why did I even wrote this I don't even expect anyone else other than me to code ._. \
+TODO: actually add the assembler script to cpp/
