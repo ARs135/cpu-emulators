@@ -41,16 +41,22 @@ class CallStack
         }
 };
 
+void fetch();
+void decode();
+void execute();
+
 int main()
 {
     // Initialize the Components
     uint16_t instruction_memory[1024];
-    uint16_t pc;
+    uint16_t pc = 0;
     CallStack call_stack;
     uint8_t RAM[256];
     uint8_t register_file[8];
     bool zero_flag;
     bool carry_flag;
+
+    // Load in da recipe (load in the program)
     
     return 0;
 }
