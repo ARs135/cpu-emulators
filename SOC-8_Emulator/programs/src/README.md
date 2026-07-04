@@ -31,5 +31,5 @@ Note: If you're me (which you aren't unless if I'm reading it then hi to myself)
 6. Go back to my repository (not your fork, this one) and create a new Pull Request
 
 Why did I even wrote this I don't even expect anyone else other than me to code ._. \
-TODO: actually add the assembler script to cpp/
+TODO: actually add the assembler script to cpp/ \
 TODO: remove the previous TODO
