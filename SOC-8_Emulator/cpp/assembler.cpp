@@ -1,60 +1,9 @@
-/*
-To y'all who wonder how I structure my C++ files
-Headers
-Classes/Structs/Constants
-Function Declarations
-Main
-Function Definitions
-*/
-
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdint>
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <fstream>
 #include <filesystem>
-
-class CallStack
-{
-    private:
-        uint16_t data[16] = {0};
-        uint8_t top = 0;
-    public:
-        void push(uint16_t address)
-        {
-            if (top < 16)
-            {
-                data[top] = address;
-                top++;
-            }
-            else
-            {
-                // to any code reader that isn't me, this is a joke.
-                std::cout << "Please check Stack Overflow to fix this error.\n You've made too many function calls in your script.\n";
-
-                for (uint8_t i = 0; i < 15; i++)
-                {
-                    data[i] = data[i + 1];
-                }
-                top = 15;
-                data[top] = address;
-                // ^ shifts the addresses due to the stack overflowing, that's how I designed it, ask me why and it's because I made the call stack like that in minecraft.
-            }
-        }
-
-        uint16_t pop()
-        {
-            if (top > 0)
-            {
-                top--;
-                return data[top];
-            }
-            // return 0 cuz the stack is empty
-            return 0;
-        }
-};
 
 std::unordered_map<std::string, std::string> opcodeLUT = {
     {"NOP", "0000"},
@@ -102,7 +51,7 @@ std::unordered_map<std::string, std::string> registerLUT = {
     {"r4", "100"},
     {"r5", "101"},
     {"r6", "110"},
-    {"r7", "111"},
+    {"r7", "111"}
 };
 
 std::unordered_map<std::string, std::string> condLUT= {
@@ -112,71 +61,34 @@ std::unordered_map<std::string, std::string> condLUT= {
     {"NC", "11"}
 };
 
-void displayState();
-
-// bool validFileType(std::string filename); some old things
-// bool fileExists(std::string filename);
-std::string fileFormat(std::string filename);
-std::string filePath(std::string filename);
-
-bool assemble(const std::string& infile); 
+bool assemble(const std::string& infile);
 std::string getOperandType(const std::string& operand, const std::string& instruction, const int& operandPos);
 bool isANumber(const std::string& inString);
 
 std::string DectoBin(int num, int bitWidth);
 std::string BintoHex(const std::string& bin);
 
-void fetch();
-void decode();
-void execute();
+std::string fileFormat(std::string filename);
+std::string filePath(std::string filename);
 
 int main()
 {
-    // Initialize the Components
-    uint16_t instruction_memory[1024];
-    uint16_t pc = 0;
-    CallStack call_stack;
-    uint8_t RAM[256];
-    uint8_t register_file[8];
-    bool zero_flag;
-    bool carry_flag;
-
-    // Load in da recipe (load in the program)
-    std::cout << "What file do you want to run bro?\n";
+    std::cout << "Hey bro what file do you want to assemble?\n";
     std::string filename;
     std::cin >> filename;
 
-    // Do some validation (i.e. check that the file actually exists, check that it's the correct file type (.hex or .asm))
-    /*
-    if (!validFileType(filename))
+    if (fileFormat(filename) != ".asm")
     {
-        std::cout << "You sure it's that file bro?\n";
-        return 1;
-    } // Ignore this :P
-    */
-    std::string binFile;
-    if (fileFormat(filename) == ".asm")
-    {
-        // placeholder, check if there's .hex already :P
-    }
-    else if (fileFormat(filename) == ".hex")
-    {
-        binFile = filename;
-    }
-    else
-    {
-        std::cout << "You sure that's the file?\n";
+        std::cout << "That's not an assembly file bro";
         return 1;
     }
 
-    std::ifstream file(filePath(binFile));
-
-    if (!file.is_open())
+    if (!assemble(filename))
     {
-        std::cout << "Erm the file didn't open. Idk does it actually exist?\n"; 
+        std::cout << "^ There's some errors pal.\n";
         return 1;
     }
-    
+
     return 0;
 }
 
@@ -193,30 +105,6 @@ std::string filePath(std::string filename)
     else if (fileFormat(filename) == ".hex") return std::filesystem::absolute("programs/bin/" + filename).string();
     else return "";
 }
-
-/*
-bool isRegister(const std::string& operand)
-{
-    int regAddr;
-    if (operand.find("r") == 0)
-    {
-        try
-        {
-            regAddr = std::stoi(operand.substr(1), nullptr, 0);
-        }
-        catch(const std::exception& e)
-        {
-            return false;
-        }
-        
-        if (regAddr < 16) return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-*/
 
 std::string getOperandType(const std::string& operand, const std::string& instruction, const int& operandPos)
 {

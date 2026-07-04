@@ -13,7 +13,7 @@ If you didn't come from the bin folder, then uh, don't complain that it's a .hex
 
 ## Program list
 
-- **ABSOLUTELY NOTHING** (reminder to actually code something here)
+- fib.asm (A fibonacci program)
 
 ## MORE PROGRAMS!!!
 
@@ -26,7 +26,7 @@ Note: If you're me (which you aren't unless if I'm reading it then hi to myself)
 1. Fork the repository
 2. Clone your fork to your device (`git clone [link]`, obviously `[link]` is to be replaced with your fork's link)
 3. Switch to the contributions branch (`git switch contributions`)
-4. Write an .asm file in this folder and assemble it with the assembler script in [cpp/](../../cpp)
+4. Write an .asm file in this folder and assemble it with the assembler script in [cpp/](../../cpp), for more info on writing the assembly of this, read [this](../../README.md) or for an example, read [this](./fib.asm)
 5. Push your fork back to GitHub (assuming you do know how to use Git)
 6. Go back to my repository (not your fork, this one) and create a new Pull Request
 

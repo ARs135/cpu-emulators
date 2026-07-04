@@ -38,6 +38,8 @@ This is one of my own CPUs that I've designed by myself
 | LOD | Load | 1110 | RdAddr |
 | STR | Store | 1111 | RsAddr |
 
+Conditions: Z, NZ, C, and NC (Zero, Not Zero, Carry, Not Carry)
+
 ### Instruction Formats
 
 O - Nothing/Unused \
@@ -59,6 +61,17 @@ R - IROM Address
 | CAddr10 | CCRR RRRR RRRR |
 | RdAddr | DDDA AAAA AAAO |
 | RsAddr | XXXA AAAA AAAO |
+
+---
+## Comments, Labels and Definitions
+To write comments in the code, use a semi-colon \
+example: `; this is a comment`
+
+To write labels in the code, use a period \
+example: `.label` (case sensitive)
+
+To write definitions in the code, use this \
+example: `.define example = 1` (case sensitive)
 
 ---
 
