@@ -157,7 +157,21 @@ int main()
     std::string binFile;
     if (fileFormat(filename) == ".asm")
     {
-        // placeholder, check if there's .hex already :P
+        // check if there's .hex already :P if not then make it
+        std::string hexFilename = std::filesystem::path(filename).replace_extension(".hex").string();
+        if (std::filesystem::exists(filePath(hexFilename)))
+        {
+            binFile = hexFilename;
+        }
+        else
+        {
+            if (!assemble(filename))
+            {
+                std::cout << "^ There are some errors pal.\n";
+                return 1;
+            }
+            binFile = hexFilename;
+        }
     }
     else if (fileFormat(filename) == ".hex")
     {
@@ -175,6 +189,20 @@ int main()
     {
         std::cout << "Erm the file didn't open. Idk does it actually exist?\n"; 
         return 1;
+    }
+
+    uint16_t instruction;
+    uint16_t addr = 0;
+
+    while (file >> std::hex >> instruction)
+    {
+        if (addr >= 1024)
+        {
+            std::cout << "Aw, what ashame. The program is too long. Recode it or something\n";
+            return 1;
+        }
+        instruction_memory[addr] = instruction;
+        addr++;
     }
     
     return 0;
