@@ -130,17 +130,17 @@ void fetch();
 void decode();
 void execute();
 
+// Initialize the Components (moved outside of main cuz of the displayState() function)
+uint16_t instruction_memory[1024];
+uint16_t pc = 0;
+CallStack call_stack;
+uint8_t RAM[256];
+uint8_t register_file[8];
+bool zero_flag;
+bool carry_flag;
+
 int main()
 {
-    // Initialize the Components
-    uint16_t instruction_memory[1024];
-    uint16_t pc = 0;
-    CallStack call_stack;
-    uint8_t RAM[256];
-    uint8_t register_file[8];
-    bool zero_flag;
-    bool carry_flag;
-
     // Load in da recipe (load in the program)
     std::cout << "What file do you want to run bro?\n";
     std::string filename;
@@ -206,6 +206,51 @@ int main()
     }
     
     return 0;
+}
+
+void fetch()
+{
+    //
+}
+
+void decode()
+{
+    //
+}
+
+void execute()
+{
+    //
+}
+
+void displayState()
+{
+    std::cout << "===== CPU State =====\n";
+    std::cout << "Flags:\n";
+    std::cout << "Z=" << zero_flag << " C=" << carry_flag;
+    std::cout << "Program Counter: " << pc << std::endl;
+    std::cout << "Registers:\n";
+    bool found = false;
+    for (int i = 0; i < 8; i++)
+    {
+        if (register_file[i] != 0)
+        {
+            found = true;
+            std::cout << "r" << i << ": " << (int)register_file[i] << std::endl;
+        }
+    }
+    if (!found) std::cout << "Every register is empty right now. ;<;";
+    std::cout << "RAM:\n";
+    found = false;
+    for (int i = 0; i < 256; i++)
+    {
+        if (RAM[i] != 0)
+        {
+            found = true;
+            std::cout << "0x" << BintoHex(DectoBin(i, 8)) << ": " << (int)RAM[i];
+        }
+    }
+    if (!found) std::cout << "Every address is empty right now. ;<;";
 }
 
 std::string fileFormat(std::string filename)
