@@ -38,7 +38,8 @@ This is one of my own CPUs that I've designed by myself
 | LOD | Load | 1110 | RdAddr |
 | STR | Store | 1111 | RsAddr |
 
-Conditions: Z, NZ, C, and NC (Zero, Not Zero, Carry, Not Carry)
+Conditions: Z, NZ, C, and NC (Zero, Not Zero, Carry, Not Carry) \
+Borrow is Not Carry (and no borrow is Carry, this is for subtraction)
 
 ### Instruction Formats
 

@@ -16,6 +16,24 @@ Function Definitions
 #include <unordered_map>
 #include <filesystem>
 
+enum class ALUops
+{
+    ADD,
+    SUB,
+    NAND,
+    OR,
+    XOR,
+    RSH
+};
+
+enum class Conds
+{
+    Z,
+    NZ,
+    C,
+    NC
+};
+
 class CallStack
 {
     private:
@@ -26,7 +44,7 @@ class CallStack
         {
             if (top < 16)
             {
-                data[top] = address;
+                data[top] = address & 0x3FF;
                 top++;
             }
             else
@@ -39,7 +57,7 @@ class CallStack
                     data[i] = data[i + 1];
                 }
                 top = 15;
-                data[top] = address;
+                data[top] = address & 0x3FF;
                 // ^ shifts the addresses due to the stack overflowing, that's how I designed it, ask me why and it's because I made the call stack like that in minecraft.
             }
         }
@@ -53,6 +71,75 @@ class CallStack
             }
             // return 0 cuz the stack is empty
             return 0;
+        }
+};
+
+class RegFile
+{
+    private:
+        uint8_t registers[8]{0};
+    public:
+        uint8_t read(uint8_t addr)
+        {
+            if (addr == 0) return 0;
+            return registers[addr];
+        }
+        void write(uint8_t addr, uint8_t val)
+        {
+            if (addr != 0) registers[addr] = val;
+        }
+};
+
+class ALU 
+{
+    public:
+        uint8_t operate(uint8_t reg1, uint8_t reg2, ALUops op, RegFile regfile, bool& cflag, bool& zflag)
+        {
+            switch (op)
+            {
+                case ALUops::ADD:
+                {
+                    int actualRes = regfile.read(reg1) + regfile.read(reg2);
+                    uint8_t res = regfile.read(reg1) + regfile.read(reg2);
+                    cflag = res < actualRes ? true : false;
+                    zflag = res == 0 ? true : false;
+                    return res; 
+                }
+                case ALUops::SUB:
+                {
+                    int actualRes = regfile.read(reg1) + ~(regfile.read(reg2)) + 1;
+                    uint8_t res = regfile.read(reg1) + ~(regfile.read(reg2)) + 1;
+                    cflag = res < actualRes ? true : false;
+                    zflag = res == 0 ? true : false;
+                    return res;
+                }
+                case ALUops::NAND:
+                {
+                    uint8_t res = ~(regfile.read(reg1) & regfile.read(reg2));
+                    zflag = res == 0 ? true : false;
+                    return res;
+                }
+                case ALUops::OR:
+                {
+                    uint8_t res = regfile.read(reg1) | regfile.read(reg2);
+                    zflag = res == 0 ? true : false;
+                    return res;
+                }
+                case ALUops::XOR:
+                {
+                    uint8_t res = regfile.read(reg1) ^ regfile.read(reg2);
+                    zflag = res == 0 ? true : false;
+                    return res;
+                }
+                case ALUops::RSH:
+                {
+                    uint8_t res = regfile.read(reg1) >> 1;
+                    zflag = res == 0 ? true : false;
+                    return res;
+                }
+                default:
+                    return 0;
+            }
         }
 };
 
@@ -135,9 +222,22 @@ uint16_t instruction_memory[1024];
 uint16_t pc = 0;
 CallStack call_stack;
 uint8_t RAM[256];
-uint8_t register_file[8];
+RegFile register_file;
+ALU alu;
 bool zero_flag;
 bool carry_flag;
+
+uint16_t curInst;
+uint8_t regDest;
+uint8_t regSrc1;
+uint8_t regSrc2;
+uint8_t immediate;
+uint8_t condition;
+uint16_t iAddress;
+uint8_t Address;
+ALUops aluop;
+
+bool halted = false;
 
 int main()
 {
@@ -204,42 +304,123 @@ int main()
         instruction_memory[addr] = instruction;
         addr++;
     }
+
+    while (!halted)
+    {
+        displayState();
+        fetch();
+        decode();
+        execute();
+    }
     
     return 0;
 }
 
 void fetch()
 {
-    //
+    curInst = instruction_memory[pc];
+    pc++;
+    pc &= 0x3FF;
 }
 
 void decode()
 {
-    //
+    uint8_t op = (curInst >> 12) & 0xF;
+    uint16_t operands = curInst & 0xFFF;
+
+    switch (op) // behold, the big ah switch statement
+    {
+        case 0:
+            break;
+        case 1:
+            halted = true;
+            break;
+        case 2:
+        case 3: 
+        case 4:
+        case 5:
+        case 6:
+            regSrc1 = (operands >> 6) & 0x7;
+            regSrc2 = (operands >> 3) & 0x7;
+            regDest = (operands >> 9) & 0x7;
+            if (op == 2) aluop = ALUops::ADD;
+            if (op == 3) aluop = ALUops::SUB;
+            if (op == 4) aluop = ALUops::NAND;
+            if (op == 5) aluop = ALUops::OR;
+            if (op == 6) aluop = ALUops::XOR;
+            break;
+        case 7:
+            regSrc1 = (operands >> 6) & 0x7;
+            regDest = (operands >> 9) & 0x7;
+            aluop = ALUops::RSH;
+            break;
+        case 8:
+        case 9:
+            regDest = (operands >> 9) & 0x7;
+            immediate = (operands >> 1) & 0xFF;
+            break;
+        case 10:
+            iAddress = operands & 0x3FF;
+            break;
+        case 11:
+            iAddress = operands & 0x3FF;
+            condition = (operands >> 10) & 0x3;
+            break;
+        case 12:
+            iAddress = operands & 0x3FF;
+            break;
+        case 13:
+            break;
+        case 14:
+            regDest = (operands >> 9) & 0x7;
+            Address = (operands >> 1) & 0xFF;
+            break;
+        case 15:
+            regSrc1 = (operands >> 9) & 0x7;
+            Address = (operands >> 1) & 0xFF;
+            break;
+    }
 }
 
 void execute()
 {
-    //
+    uint8_t op = (curInst >> 12) & 0xF;
+    if (op == 0 || op == 1) return;
+    if (op >= 2 && op <= 7) register_file.write(regDest, alu.operate(regSrc1, regSrc2, aluop, register_file, carry_flag, zero_flag));
+    if (op == 8) register_file.write(regDest, immediate);
+    if (op == 9) register_file.write(regDest, register_file.read(regDest + immediate));
+    if (op == 10) pc = iAddress;
+    if (op == 11 && condition == 0) pc = zero_flag ? iAddress : pc;
+    if (op == 11 && condition == 1) pc = !zero_flag ? iAddress : pc;
+    if (op == 11 && condition == 2) pc = carry_flag ? iAddress : pc;
+    if (op == 11 && condition == 3) pc = !carry_flag ? iAddress : pc;
+    if (op == 12)
+    {
+        call_stack.push(pc+1);
+        pc = iAddress;
+    }
+    if (op == 13) pc = call_stack.pop();
+    if (op == 14) register_file.write(regDest, RAM[Address]);
+    if (op == 15) RAM[Address] = register_file.read(regSrc1);
 }
 
 void displayState()
 {
     std::cout << "===== CPU State =====\n";
     std::cout << "Flags:\n";
-    std::cout << "Z=" << zero_flag << " C=" << carry_flag;
+    std::cout << "Z=" << zero_flag << " C=" << carry_flag << std::endl;
     std::cout << "Program Counter: " << pc << std::endl;
     std::cout << "Registers:\n";
     bool found = false;
     for (int i = 0; i < 8; i++)
     {
-        if (register_file[i] != 0)
+        if (register_file.read(i) != 0)
         {
             found = true;
-            std::cout << "r" << i << ": " << (int)register_file[i] << std::endl;
+            std::cout << "r" << i << ": " << (int)register_file.read(i) << std::endl;
         }
     }
-    if (!found) std::cout << "Every register is empty right now. ;<;";
+    if (!found) std::cout << "Every register is empty right now. ;<;\n";
     std::cout << "RAM:\n";
     found = false;
     for (int i = 0; i < 256; i++)
@@ -247,10 +428,10 @@ void displayState()
         if (RAM[i] != 0)
         {
             found = true;
-            std::cout << "0x" << BintoHex(DectoBin(i, 8)) << ": " << (int)RAM[i];
+            std::cout << "0x" << BintoHex(DectoBin(i, 8)) << ": " << (int)RAM[i] << std::endl;
         }
     }
-    if (!found) std::cout << "Every address is empty right now. ;<;";
+    if (!found) std::cout << "Every address is empty right now. ;<;\n";
 }
 
 std::string fileFormat(std::string filename)
