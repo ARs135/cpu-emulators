@@ -254,7 +254,7 @@ ALUops aluop;
 
 bool halted = false;
 
-std::vector<CPUState>CPUHistory;
+std::vector<CPUState> CPUHistory;
 
 int main()
 {
