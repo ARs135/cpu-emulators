@@ -11,6 +11,8 @@ Function Definitions
 #include <fstream>
 #include <sstream>
 #include <cstdint>
+#include <cstring>
+#include <cctype>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -143,6 +145,16 @@ class ALU
         }
 };
 
+struct CPUState
+{
+    uint16_t pcounter;
+    CallStack cstack;
+    uint8_t ram[256];
+    RegFile regfile;
+    bool zflag;
+    bool cflag;
+};
+
 std::unordered_map<std::string, std::string> opcodeLUT = {
     {"NOP", "0000"},
     {"HLT", "0001"},
@@ -217,6 +229,9 @@ void fetch();
 void decode();
 void execute();
 
+void stepForward();
+void stepBackward();
+
 // Initialize the Components (moved outside of main cuz of the displayState() function)
 uint16_t instruction_memory[1024];
 uint16_t pc = 0;
@@ -238,6 +253,8 @@ uint8_t Address;
 ALUops aluop;
 
 bool halted = false;
+
+std::vector<CPUState>CPUHistory;
 
 int main()
 {
@@ -308,9 +325,26 @@ int main()
     while (!halted)
     {
         displayState();
-        fetch();
-        decode();
-        execute();
+        std::cout << "[Q] Step Back | [E] Step Forward | [X] Exit\n";
+        std::string input;
+        std::cin >> input;
+
+        char key = static_cast<char>(std::tolower(input[0]));
+
+        switch (key)
+        {
+            case 'q':
+                stepBackward();
+                break;
+            case 'e':
+                stepForward();
+                break;
+            case 'x':
+                return 0;
+            default:
+                std::cout << "Uhm, I don't think that's in the list of options I gave you there pal.\n";
+                break;
+        }
     }
     
     return 0;
@@ -432,6 +466,36 @@ void displayState()
         }
     }
     if (!found) std::cout << "Every address is empty right now. ;<;\n";
+}
+
+void stepForward()
+{
+    CPUState state;
+    state.pcounter = pc;
+    state.cstack = call_stack;
+    std::memcpy(state.ram, RAM, sizeof(RAM));
+    state.regfile = register_file;
+    state.cflag = carry_flag;
+    state.zflag = zero_flag;
+    CPUHistory.push_back(state);
+    fetch();
+    decode();
+    execute();
+}
+
+void stepBackward()
+{
+    if (CPUHistory.empty()) return;
+    CPUState state = CPUHistory.back();
+
+    pc = state.pcounter;
+    call_stack = state.cstack;
+    std::memcpy(RAM, state.ram, sizeof(RAM));
+    register_file = state.regfile;
+    carry_flag = state.cflag;
+    zero_flag = state.zflag;
+
+    CPUHistory.pop_back();
 }
 
 std::string fileFormat(std::string filename)
