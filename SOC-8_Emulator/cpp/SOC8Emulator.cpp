@@ -95,7 +95,7 @@ class RegFile
 class ALU 
 {
     public:
-        uint8_t operate(uint8_t reg1, uint8_t reg2, ALUops op, RegFile regfile, bool& cflag, bool& zflag)
+        uint8_t operate(uint8_t reg1, uint8_t reg2, ALUops op, RegFile& regfile, bool& cflag, bool& zflag)
         {
             switch (op)
             {
